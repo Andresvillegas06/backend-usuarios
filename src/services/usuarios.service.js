@@ -17,7 +17,7 @@ export function buscarPorId(id) {
   return usuario ? quitarPassword(usuario) : null
 }
 
-export async function crearUsuario({ nombre, email, password }) {
+export async function crearUsuario({ nombre, email, password, rol = 'usuario' }) {
   const passwordHasheado = await bcrypt.hash(password, 10)
 
   const nuevoUsuario = {
@@ -25,10 +25,27 @@ export async function crearUsuario({ nombre, email, password }) {
     nombre,
     email,
     password: passwordHasheado,
+    rol,
   }
 
   usuarios.push(nuevoUsuario)
   return quitarPassword(nuevoUsuario)
+}
+
+export function listarUsuarios() {
+  return usuarios.map(quitarPassword)
+}
+
+export async function sembrarAdministrador() {
+  const yaExiste = buscarPorEmail('admin@test.com')
+  if (yaExiste) return
+
+  await crearUsuario({
+    nombre: 'Administrador',
+    email: 'admin@test.com',
+    password: 'admin123',
+    rol: 'administrador',
+  })
 }
 
 export async function validarCredenciales(email, password) {
